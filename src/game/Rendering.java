@@ -1,14 +1,8 @@
 package game;
 
-import objects.Direction;
 
 public class Rendering {
-    public void makeFrame(Direction position, GameStorage storage) {
-        //линия
-        for (int i = 0; i < 15; i++) {
-            System.out.print("  *");
-        }
-        System.out.println();
+    public void makeFrame(GameStorage storage) {
 
         for (int i = 1; i < 11; i++) {
             for (int j = 1; j < 11; j++) {

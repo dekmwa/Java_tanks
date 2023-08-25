@@ -214,7 +214,7 @@ public class Game {
         filePath = scanner.next();
 
         try {
-            while (!initializingTanks("C:\\Users\\bagos\\Desktop\\tanks.txt")) {
+            while (!initializingTanks("D:\\Files\\idea projecs\\Java_tanks\\src\\tanks.txt")) {
                 System.out.print("путь к файлу неверный, введите путь к файлу: ");
                 filePath = scanner.next();
             }
@@ -229,7 +229,7 @@ public class Game {
 
         }
         try {
-            while (isGameAlive && !initializingMap("C:\\Users\\bagos\\Desktop\\walls.txt")) {
+            while (isGameAlive && !initializingMap("D:\\Files\\idea projecs\\Java_tanks\\src\\walls.txt")) {
                 System.out.println("путь к файлу неверный, введите путь к файлу: ");
                 filePath = scanner.next();
             }
@@ -240,8 +240,7 @@ public class Game {
 
         while (isGameAlive) {
             for (int i = 0; i < storage.getTanks().size(); i++) {
-                rendering.makeFrame(storage.getTanks().get(i).getPosition(), storage);
-                System.out.println();
+                rendering.makeFrame(storage);
 
                 System.out.println("игрок танка: " + storage.getTanks().get(i).getName());
 
