@@ -14,7 +14,6 @@ public class GameStorage {
     public ArrayList<Tank> getTanks() {
         return tanks;
     }
-
     public void setTanks(ArrayList<Tank> tanks) {
         this.tanks = tanks;
     }
@@ -22,7 +21,6 @@ public class GameStorage {
     public ArrayList<Wall> getWalls() {
         return walls;
     }
-
     public void setWalls(ArrayList<Wall> walls) {
         this.walls = walls;
     }
@@ -30,7 +28,6 @@ public class GameStorage {
     public ArrayList<RoundLogs> getRoundLogs() {
         return roundLogs;
     }
-
     public void setRoundLogs(ArrayList<RoundLogs> roundLogs) {
         this.roundLogs = roundLogs;
     }

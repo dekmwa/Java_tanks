@@ -3,10 +3,16 @@ package game;
 import objects.Direction;
 
 public class Rendering {
+    private String air = "";
+    private String wall = "□";
+    private String tankForward = "⍐";
+    private String tankBack = "⍗";
+    private String tankLeft = "⍇";
+    private String tankRight = "⍈";
+
     public void makeFrame(Direction position, GameStorage storage) {
-        //линия
         for (int i = 0; i < 15; i++) {
-            System.out.print("  *");
+            System.out.print("*");
         }
         System.out.println();
 
@@ -16,7 +22,7 @@ public class Rendering {
                 for (int n = 0; n < storage.getWalls().size(); n++) {
                     if (j == storage.getWalls().get(n).getCoordinateX()
                             && i == storage.getWalls().get(n).getCoordinateY()) {
-                        System.out.print("  -");
+                        System.out.print(wall);
                         skip = true;
                     }
                 }
@@ -27,10 +33,10 @@ public class Rendering {
                     if (j == storage.getTanks().get(n).getCoordinateX()
                             && i == storage.getTanks().get(n).getCoordinateY()) {
                         switch (storage.getTanks().get(n).getPosition()) {
-                            case FORWARD -> System.out.print("  ⍐");
-                            case BACK -> System.out.print("  ⍗");
-                            case LEFT -> System.out.print("  ⍇");
-                            case RIGHT -> System.out.print("  ⍈");
+                            case FORWARD -> System.out.print(tankForward);
+                            case BACK -> System.out.print(tankBack);
+                            case LEFT -> System.out.print(tankLeft);
+                            case RIGHT -> System.out.print(tankRight);
                         }
                         skip = true;
                     }
@@ -38,7 +44,7 @@ public class Rendering {
                 if (skip) {
                     continue;
                 }
-                System.out.print("   ");
+                System.out.print(air);
             }
             System.out.println();
         }

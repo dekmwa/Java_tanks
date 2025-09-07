@@ -33,7 +33,7 @@ public class Game {
     private boolean initializingMap(String filePath) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
         ArrayList<Wall> walls = new ArrayList<>();
 
-        int[][] wallsCoordinateMassive = fileParsing.readFile(filePath);
+        int[][] wallsCoordinateMassive = fileParsing.readFile("S:\\Java_Projects\\Java_Tanks\\walls.txt");
         if (wallsCoordinateMassive == null) {
             return false;
         }
@@ -50,7 +50,7 @@ public class Game {
     private boolean initializingTanks(String filePath) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
         ArrayList<Tank> tanks = new ArrayList<>();
 
-        int[][] tanksInfoMassive = fileParsing.readFile(filePath);
+        int[][] tanksInfoMassive = fileParsing.readFile("S:\\Java_Projects\\Java_Tanks\\tank.txt");
         if (tanksInfoMassive == null) {
             return false;
         }
@@ -214,7 +214,7 @@ public class Game {
         filePath = scanner.next();
 
         try {
-            while (!initializingTanks("C:\\Users\\bagos\\Desktop\\tanks.txt")) {
+            while (!initializingTanks(filePath)) {
                 System.out.print("путь к файлу неверный, введите путь к файлу: ");
                 filePath = scanner.next();
             }
@@ -229,7 +229,7 @@ public class Game {
 
         }
         try {
-            while (isGameAlive && !initializingMap("C:\\Users\\bagos\\Desktop\\walls.txt")) {
+            while (isGameAlive && !initializingMap(filePath)) {
                 System.out.println("путь к файлу неверный, введите путь к файлу: ");
                 filePath = scanner.next();
             }

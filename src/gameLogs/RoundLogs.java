@@ -9,7 +9,6 @@ public class RoundLogs {
     public ArrayList<TankInfo> getTanks() {
         return tanks;
     }
-
     public void setTanks(ArrayList<TankInfo> tanks) {
         this.tanks = tanks;
     }

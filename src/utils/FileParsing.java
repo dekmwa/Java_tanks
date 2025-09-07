@@ -27,6 +27,7 @@ public class FileParsing {
                     }
                 }
             }
+            scanner.close();
             return massive;
         } catch (FileNotFoundException e) {
             return null;
