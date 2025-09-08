@@ -1,8 +1,8 @@
 package objects;
 
 public enum Direction {
-    FORWARD,
-    BACK,
+    UP,
+    DOWN,
     LEFT,
     RIGHT
 }

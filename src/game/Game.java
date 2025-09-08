@@ -1,5 +1,6 @@
 package game;
 
+import objects.GameMode;
 import utils.FileParsing;
 import exception.InvalidUniqueCoordinatesExeption;
 import exception.WrongCoordinatesExeption;
@@ -14,6 +15,7 @@ public class Game {
     private FileParsing fileParsing = new FileParsing();
     private boolean isGameAlive = true;
     private GameStorage storage = new GameStorage();
+    private GameMode gameMode = GameMode.COMPETITIVE;
 
     private void isValidCoordinate(int[][] array) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
         for (int i = 0; i < array.length; i++) {
@@ -33,10 +35,7 @@ public class Game {
     private boolean initializingMap(String filePath) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
         ArrayList<Wall> walls = new ArrayList<>();
 
-        int[][] wallsCoordinateMassive = fileParsing.readFile("S:\\Java_Projects\\Java_Tanks\\walls.txt");
-        if (wallsCoordinateMassive == null) {
-            return false;
-        }
+        int[][] wallsCoordinateMassive = fileParsing.readFile(filePath);
         isValidCoordinate(wallsCoordinateMassive);
 
         for (int i = 0; i < wallsCoordinateMassive.length; i++) {
@@ -50,8 +49,12 @@ public class Game {
     private boolean initializingTanks(String filePath) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
         ArrayList<Tank> tanks = new ArrayList<>();
 
-        int[][] tanksInfoMassive = fileParsing.readFile("S:\\Java_Projects\\Java_Tanks\\tank.txt");
+        int[][] tanksInfoMassive = fileParsing.readFile(filePath);
         if (tanksInfoMassive == null) {
+            System.out.println("Файл не найден.");
+            return false;
+        } else if (tanksInfoMassive.length < 1) {
+            System.out.println("Для начала игры должен быть хотя бы один танк.");
             return false;
         }
         isValidCoordinate(tanksInfoMassive);
@@ -72,11 +75,11 @@ public class Game {
         switch (driveDirection) {
             case "forward" -> {
                 switch (direction) {
-                    case FORWARD -> {
+                    case UP -> {
                         x = 0;
                         y = -1;
                     }
-                    case BACK -> {
+                    case DOWN -> {
                         x = 0;
                         y = 1;
                     }
@@ -96,11 +99,11 @@ public class Game {
             }
             case "back" -> {
                 switch (direction) {
-                    case FORWARD -> {
+                    case UP -> {
                         x = 0;
                         y = 1;
                     }
-                    case BACK -> {
+                    case DOWN -> {
                         x = 0;
                         y = -1;
                     }
@@ -156,11 +159,11 @@ public class Game {
         int y = 0;
 
         switch (direction) {
-            case FORWARD -> {
+            case UP -> {
                 x = 0;
                 y = -1;
             }
-            case BACK -> {
+            case DOWN -> {
                 x = 0;
                 y = 1;
             }
@@ -212,11 +215,13 @@ public class Game {
 
         System.out.print("укажите, где находится файл с характеристиками танков: ");
         filePath = scanner.next();
-
         try {
             while (!initializingTanks(filePath)) {
-                System.out.print("путь к файлу неверный, введите путь к файлу: ");
+                System.out.print("Введите путь к файлу танков заного: ");
                 filePath = scanner.next();
+            }
+            if (storage.getTanks().size() < 2) {
+                gameMode = GameMode.SINGLE;
             }
         } catch (WrongCoordinatesExeption | InvalidUniqueCoordinatesExeption e) {
             isGameAlive = false;
@@ -226,7 +231,6 @@ public class Game {
         if (isGameAlive) {
             System.out.print("укажите, где находится файл с расположением объектов на карте: ");
             filePath = scanner.next();
-
         }
         try {
             while (isGameAlive && !initializingMap(filePath)) {
@@ -240,10 +244,10 @@ public class Game {
 
         while (isGameAlive) {
             for (int i = 0; i < storage.getTanks().size(); i++) {
-                rendering.makeFrame(storage.getTanks().get(i).getPosition(), storage);
+                rendering.makeFrame(storage);
                 System.out.println();
 
-                System.out.println("игрок танка: " + storage.getTanks().get(i).getName());
+                System.out.println("Ходит игрок танка: " + storage.getTanks().get(i).getName());
 
                 boolean choiceAction = true;
                 while (choiceAction) {
@@ -266,7 +270,7 @@ public class Game {
 
                     switch (userChoice) {
                         case 1 -> {
-                            if (checkMovement(storage.getTanks().get(i).getPosition(), storage.getTanks().get(i),
+                            if (checkMovement(storage.getTanks().get(i).getDirection(), storage.getTanks().get(i),
                                     "forward")) {
                                 storage.getTanks().get(i).forward();
                             } else {
@@ -274,7 +278,7 @@ public class Game {
                             }
                         }
                         case 2 -> {
-                            if (checkMovement(storage.getTanks().get(i).getPosition(), storage.getTanks().get(i),
+                            if (checkMovement(storage.getTanks().get(i).getDirection(), storage.getTanks().get(i),
                                     "back")) {
                                 storage.getTanks().get(i).back();
                             } else {
@@ -289,10 +293,10 @@ public class Game {
                     if (storage.getTanks().get(i).isShot()) {
                         storage.getTanks().get(i).setShot(false);
                         checkBullet(storage.getTanks().get(i).getCoordinateX(), storage.getTanks().get(i).getCoordinateY(),
-                                storage.getTanks().get(i).getPosition());
+                                storage.getTanks().get(i).getDirection());
                     }
 
-                    if (storage.getTanks().size() == 1) {
+                    if (storage.getTanks().size() == 1 && gameMode == GameMode.COMPETITIVE) {
                         System.out.println("побеждает игрок танка: " + storage.getTanks().get(0).getName());
                         isGameAlive = false;
                     }

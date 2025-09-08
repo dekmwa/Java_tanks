@@ -15,8 +15,8 @@ public class FileParsing {
                 columns = scanner.nextLine().split(" ").length;
                 lines++;
             }
-            scanner.close();
 
+            scanner.close();
             int[][] massive = new int[lines][columns];
 
             scanner = new Scanner(new File(path));

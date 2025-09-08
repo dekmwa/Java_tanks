@@ -4,16 +4,16 @@ public class Tank {
     private String name;
     private int coordinateX;
     private int coordinateY;
-    private Direction position;
+    private Direction direction;
     private int health;
     private int ammo;
     private boolean shot = false;
 
-    public Tank(String name, int coordinateX, int coordinateY, Direction position, int health, int ammo) {
+    public Tank(String name, int coordinateX, int coordinateY, Direction direction, int health, int ammo) {
         this.name = name;
         this.coordinateX = coordinateX;
         this.coordinateY = coordinateY;
-        this.position = position;
+        this.direction = direction;
         this.health = health;
         this.ammo = ammo;
     }
@@ -26,38 +26,38 @@ public class Tank {
     }
 
     public void forward() {
-        switch (position) {
-            case FORWARD -> coordinateY--;
-            case BACK -> coordinateY++;
+        switch (direction) {
+            case UP -> coordinateY--;
+            case DOWN -> coordinateY++;
             case LEFT -> coordinateX--;
             case RIGHT -> coordinateX++;
         }
     }
 
     public void back() {
-        switch (position) {
-            case FORWARD -> coordinateY++;
-            case BACK -> coordinateY--;
+        switch (direction) {
+            case UP -> coordinateY++;
+            case DOWN -> coordinateY--;
             case LEFT -> coordinateX++;
             case RIGHT -> coordinateX--;
         }
     }
 
     public void turnRight() {
-        switch (position) {
-            case FORWARD -> position = Direction.RIGHT;
-            case BACK -> position = Direction.LEFT;
-            case LEFT -> position = Direction.FORWARD;
-            case RIGHT -> position = Direction.BACK;
+        switch (direction) {
+            case UP -> direction = Direction.RIGHT;
+            case DOWN -> direction = Direction.LEFT;
+            case LEFT -> direction = Direction.UP;
+            case RIGHT -> direction = Direction.DOWN;
         }
     }
 
     public void turnLeft() {
-        switch (position) {
-            case FORWARD -> position = Direction.LEFT;
-            case BACK -> position = Direction.RIGHT;
-            case LEFT -> position = Direction.BACK;
-            case RIGHT -> position = Direction.FORWARD;
+        switch (direction) {
+            case UP -> direction = Direction.LEFT;
+            case DOWN -> direction = Direction.RIGHT;
+            case LEFT -> direction = Direction.DOWN;
+            case RIGHT -> direction = Direction.UP;
         }
     }
 
@@ -85,12 +85,12 @@ public class Tank {
         this.coordinateY = coordinateY;
     }
 
-    public Direction getPosition() {
-        return position;
+    public Direction getDirection() {
+        return direction;
     }
 
-    public void setPosition(Direction position) {
-        this.position = position;
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 
     public int getHealth() {
@@ -123,7 +123,7 @@ public class Tank {
                 "name='" + name + '\'' +
                 ", coordinateX=" + coordinateX +
                 ", coordinateY=" + coordinateY +
-                ", position=" + position +
+                ", position=" + direction +
                 ", health=" + health +
                 ", ammo=" + ammo +
                 '}';
