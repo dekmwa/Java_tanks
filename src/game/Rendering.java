@@ -1,22 +1,25 @@
 package game;
 
 public class Rendering {
-    private String air = ".";
-    private String wall = "□";
-    private String tankForward = "⍐";
-    private String tankBack = "⍗";
-    private String tankLeft = "⍇";
-    private String tankRight = "⍈";
+    private String air = "   ";
+    private String wall = "  □";
+    private String tankForward = "  ⍐";
+    private String tankBack = "  ⍗";
+    private String tankLeft = "  ⍇";
+    private String tankRight = "  ⍈";
 
-    private void printLine(int size) {
+    private void printLine(int size, boolean newLine) {
         for (int i = 0; i < size; i++) {
             System.out.print("*");
         }
-        System.out.println();
+        if (newLine) {
+            System.out.println();
+        }
     }
 
     public void makeFrame(GameStorage storage) {
-        printLine(50);
+        System.out.println();
+        printLine(10 * 3, true);
 
         for (int i = 1; i < 11; i++) {
             for (int j = 1; j < 11; j++) {
@@ -50,5 +53,7 @@ public class Rendering {
             }
             System.out.println();
         }
+
+        printLine(10 * 3, false);
     }
 }

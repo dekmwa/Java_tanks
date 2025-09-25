@@ -1,36 +1,47 @@
 package utils;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Scanner;
+import java.io.FileNotFoundException;
+import exception.InvalidDataFormatException;
+
 
 public class FileParsing {
-    public int[][] readFile(String path) {
-        try {
-            Scanner scanner = new Scanner(new File(path));
+    public int[][] parseFile(String filePath, int numbersCnt) throws FileNotFoundException, InvalidDataFormatException {
 
-            int lines = 0;
-            int columns = 0;
-            while (scanner.hasNextLine()) {
-                columns = scanner.nextLine().split(" ").length;
-                lines++;
+        Scanner fileScanner1 = new Scanner(new File(filePath));
+        int fileLinesCnt = checkFile(fileScanner1, numbersCnt);
+        fileScanner1.close();
+
+        Scanner fileScanner2 = new Scanner(new File(filePath));
+        int[][] parsedFileArray = fillArray(fileScanner2, fileLinesCnt, numbersCnt);
+        fileScanner2.close();
+        return parsedFileArray;
+    }
+
+    private int checkFile(Scanner fileScanner, int numbersCnt) throws InvalidDataFormatException {
+        int linesCnt = 0;
+
+        while(fileScanner.hasNextLine()) {
+            if (fileScanner.nextLine().split(" ").length == numbersCnt) {
+                linesCnt++;
+            } else {
+                throw new InvalidDataFormatException();
             }
-
-            scanner.close();
-            int[][] massive = new int[lines][columns];
-
-            scanner = new Scanner(new File(path));
-            for (int i = 0; i < lines; i++) {
-                for (int j = 0; j < columns; j++) {
-                    if (scanner.hasNextInt()) {
-                        massive[i][j] = scanner.nextInt();
-                    }
-                }
-            }
-            scanner.close();
-            return massive;
-        } catch (FileNotFoundException e) {
-            return null;
         }
+        
+        return linesCnt;
+    }
+
+    private int[][] fillArray(Scanner fileScanner, int linesCnt, int numbersCnt) {
+        int[][] arr = new int[linesCnt][numbersCnt];
+
+        for (int i = 0; i < linesCnt; i++) {
+            for (int j = 0; j < numbersCnt; j++) {
+                arr[i][j] = fileScanner.nextInt();
+            }
+        }
+
+        return arr;
     }
 }

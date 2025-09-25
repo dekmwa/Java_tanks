@@ -2,12 +2,14 @@ package game;
 
 import objects.GameMode;
 import utils.FileParsing;
-import exception.InvalidUniqueCoordinatesExeption;
-import exception.WrongCoordinatesExeption;
+import exception.InvalidDataFormatException;
+import exception.InvalidUniqueCoordinatesException;
+import exception.WrongCoordinatesException;
 import objects.Direction;
 import objects.Tank;
 import objects.Wall;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -17,47 +19,56 @@ public class Game {
     private GameStorage storage = new GameStorage();
     private GameMode gameMode = GameMode.COMPETITIVE;
 
-    private void isValidCoordinate(int[][] array) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
+    private void isValidCoordinate(int[][] array) throws InvalidUniqueCoordinatesException, WrongCoordinatesException {
         for (int i = 0; i < array.length; i++) {
             if (array[i][0] > 10 || array[i][0] < 1 || array[i][1] > 10 || array[i][1] < 1) {
-                throw new WrongCoordinatesExeption("координаты превышают допустимые значения");
+                throw new WrongCoordinatesException();
             }
         }
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array.length; j++) {
                 if (i != j && array[i][0] == array[j][0] && array[i][1] == array[j][1]) {
-                    throw new InvalidUniqueCoordinatesExeption("координаты не уникальны");
+                    throw new InvalidUniqueCoordinatesException();
                 }
             }
         }
     }
 
-    private boolean initializingMap(String filePath) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
-        ArrayList<Wall> walls = new ArrayList<>();
-
-        int[][] wallsCoordinateMassive = fileParsing.readFile(filePath);
-        isValidCoordinate(wallsCoordinateMassive);
-
-        for (int i = 0; i < wallsCoordinateMassive.length; i++) {
-            String name = "wall" + i;
-            walls.add(new Wall(name, wallsCoordinateMassive[i][0], wallsCoordinateMassive[i][1]));
-        }
-        storage.setWalls(walls);
-        return true;
-    }
-
-    private boolean initializingTanks(String filePath) throws InvalidUniqueCoordinatesExeption, WrongCoordinatesExeption {
+    private boolean initializingTanks(String filePath) {
         ArrayList<Tank> tanks = new ArrayList<>();
 
-        int[][] tanksInfoMassive = fileParsing.readFile(filePath);
-        if (tanksInfoMassive == null) {
+        int[][] tanksInfoMassive;
+        try {
+            tanksInfoMassive = fileParsing.parseFile(filePath, 5);
+        } catch (FileNotFoundException e) {
             System.out.println("Файл не найден.");
             return false;
-        } else if (tanksInfoMassive.length < 1) {
-            System.out.println("Для начала игры должен быть хотя бы один танк.");
+        } catch (InvalidDataFormatException e) {
+            System.out.println("Ошибка в формате файла, не все строки содержат 5 чисел.");
             return false;
         }
-        isValidCoordinate(tanksInfoMassive);
+
+        if (tanksInfoMassive.length < 1) {
+            System.out.println("Для начала игры должен быть хотя бы 1 танк.");
+            return false;
+        }
+
+        try {
+            isValidCoordinate(tanksInfoMassive);
+        } catch (WrongCoordinatesException e) {
+            System.out.println("Координаты превышают допустимые значения.");
+            return false;
+        } catch (InvalidUniqueCoordinatesException e) {
+            System.out.println("Координаты не уникальны внутри файла.");
+            return false;
+        }
+
+        for (int i = 0; i < tanksInfoMassive.length; i++) {
+            if (tanksInfoMassive[i][2] > 3 || tanksInfoMassive[i][2] < 0) {
+                System.out.println("У танка " + (i+1) + " некорректное значение направления.");
+                return false;
+            }
+        }
 
         for (int i = 0; i < tanksInfoMassive.length; i++) {
             String name = "tank" + i;
@@ -65,6 +76,50 @@ public class Game {
                     Direction.values()[tanksInfoMassive[i][2]], tanksInfoMassive[i][3], tanksInfoMassive[i][4]));
         }
         storage.setTanks(tanks);
+        return true;
+    }
+
+    private boolean initializingWalls(String filePath) {
+        ArrayList<Wall> walls = new ArrayList<>();
+
+        int[][] wallsCoordinateMassive = null;
+        try {
+            wallsCoordinateMassive = fileParsing.parseFile(filePath, 2);
+        } catch (FileNotFoundException e) {
+            System.out.println("Файл не найден.");
+            return false;
+        } catch (InvalidDataFormatException e) {
+            System.out.println("Ошибка в формате файла, не все строки содержат 2 числа.");
+            return false;
+        }
+
+        try {
+            isValidCoordinate(wallsCoordinateMassive);
+        } catch (WrongCoordinatesException e) {
+            System.out.println("Координаты превышают допустимые значения.");
+            return false;
+        } catch (InvalidUniqueCoordinatesException e) {
+            System.out.println("Координаты не уникальны внутри файла.");
+            return false;
+        }
+
+
+        for (int i = 0; i < storage.getTanks().size(); i++) {
+            for (int j = 0; j < wallsCoordinateMassive.length; j++) {
+                if (storage.getTanks().get(i).getCoordinateX() == wallsCoordinateMassive[j][0]
+                        && storage.getTanks().get(i).getCoordinateY() == wallsCoordinateMassive[j][1]) {
+                    System.out.println("Координаты танка " + (i+1) + " и стены " + wallsCoordinateMassive[j][0]
+                            + " " + wallsCoordinateMassive[j][1] + " совпадают.");
+                    return false;
+                }
+            }
+        }
+
+        for (int i = 0; i < wallsCoordinateMassive.length; i++) {
+            String name = "wall" + i;
+            walls.add(new Wall(name, wallsCoordinateMassive[i][0], wallsCoordinateMassive[i][1]));
+        }
+        storage.setWalls(walls);
         return true;
     }
 
@@ -208,6 +263,25 @@ public class Game {
         }
     }
 
+    public void competitiveGameFinishConditions() {
+        if (storage.getTanks().size() == 1) {
+            System.out.println("Побеждает игрок танка: " + storage.getTanks().get(0).getName());
+            isGameAlive = false;
+            return;
+        }
+
+        int zeroAmmoTanksCnt = 0;
+        for (int i = 0; i < storage.getTanks().size(); i++) {
+            if (storage.getTanks().get(i).getAmmo() == 0) {
+                zeroAmmoTanksCnt++;
+            }
+        }
+        if (zeroAmmoTanksCnt == storage.getTanks().size()) {
+            System.out.println("У всех танков не осталось боеприпасов. Игра закончена ничьей.");
+            isGameAlive = false;
+        }
+    }
+
     public void startGame() {
         Rendering rendering = new Rendering();
         Scanner scanner = new Scanner(System.in);
@@ -215,31 +289,21 @@ public class Game {
 
         System.out.print("укажите, где находится файл с характеристиками танков: ");
         filePath = scanner.next();
-        try {
-            while (!initializingTanks(filePath)) {
-                System.out.print("Введите путь к файлу танков заного: ");
-                filePath = scanner.next();
-            }
-            if (storage.getTanks().size() < 2) {
-                gameMode = GameMode.SINGLE;
-            }
-        } catch (WrongCoordinatesExeption | InvalidUniqueCoordinatesExeption e) {
-            isGameAlive = false;
-            System.out.println(e.getMessage());
+        while (!initializingTanks(filePath)) {
+            System.out.print("Введите путь к файлу танков заного: ");
+            filePath = scanner.next();
+        }
+        if (storage.getTanks().size() < 2) {
+            gameMode = GameMode.SINGLE;
         }
 
         if (isGameAlive) {
-            System.out.print("укажите, где находится файл с расположением объектов на карте: ");
+            System.out.print("укажите, где находится файл с расположением стен на карте: ");
             filePath = scanner.next();
         }
-        try {
-            while (isGameAlive && !initializingMap(filePath)) {
-                System.out.println("путь к файлу неверный, введите путь к файлу: ");
-                filePath = scanner.next();
-            }
-        } catch (WrongCoordinatesExeption | InvalidUniqueCoordinatesExeption e) {
-            isGameAlive = false;
-            System.out.println(e.getMessage());
+        while (isGameAlive && !initializingWalls(filePath)) {
+            System.out.print("Введите путь к файлу стен заного: ");
+            filePath = scanner.next();
         }
 
         while (isGameAlive) {
@@ -287,7 +351,13 @@ public class Game {
                         }
                         case 3 -> storage.getTanks().get(i).turnRight();
                         case 4 -> storage.getTanks().get(i).turnLeft();
-                        case 5 -> storage.getTanks().get(i).shot();
+                        case 5 -> {
+                            if (storage.getTanks().get(i).getAmmo() == 0) {
+                                System.out.println("Выстрелить не получится, закончились боеприпасы.");
+                            } else {
+                                storage.getTanks().get(i).shot();
+                            }
+                        }
                     }
 
                     if (storage.getTanks().get(i).isShot()) {
@@ -296,9 +366,8 @@ public class Game {
                                 storage.getTanks().get(i).getDirection());
                     }
 
-                    if (storage.getTanks().size() == 1 && gameMode == GameMode.COMPETITIVE) {
-                        System.out.println("побеждает игрок танка: " + storage.getTanks().get(0).getName());
-                        isGameAlive = false;
+                    if (gameMode == GameMode.COMPETITIVE) {
+                        competitiveGameFinishConditions();
                     }
                 }
             }
